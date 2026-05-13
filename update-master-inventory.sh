@@ -98,6 +98,8 @@ print(f"""<!DOCTYPE html>
   header{{background:#1a1f2e;border-bottom:1px solid #2d3748;padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem}}
   header h1{{font-size:1.5rem;font-weight:700;letter-spacing:.05em}}
   header .ts{{margin-left:auto;font-size:.75rem;color:#718096}}
+  .terminal-btn{{text-decoration:none;background:#2d3748;color:#68d391;border:1px solid #276749;padding:.35rem .85rem;border-radius:.4rem;font-size:.8rem;font-weight:600;transition:opacity .15s;white-space:nowrap}}
+  .terminal-btn:hover{{opacity:.8}}
   .grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;padding:2rem}}
   .card{{background:#1a1f2e;border:1px solid #2d3748;border-radius:.75rem;padding:1.5rem;display:flex;flex-direction:column;gap:.75rem}}
   .card-header{{display:flex;align-items:center;gap:.75rem}}
@@ -119,6 +121,7 @@ print(f"""<!DOCTYPE html>
 <body>
 <header>
   <h1>&#9881; MASTER-MANAGER</h1>
+  <a class="terminal-btn" href="ai-controller://open" title="Open Konsole in AI-CONTROLLER">&#9654; Terminal</a>
   <span class="ts">Updated: {ts}</span>
 </header>
 <div class="grid">
