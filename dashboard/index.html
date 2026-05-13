@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MASTER-MANAGER Dashboard</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+  header{background:#1a1f2e;border-bottom:1px solid #2d3748;padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem}
+  header h1{font-size:1.5rem;font-weight:700;letter-spacing:.05em}
+  header .ts{margin-left:auto;font-size:.75rem;color:#718096}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;padding:2rem}
+  .card{background:#1a1f2e;border:1px solid #2d3748;border-radius:.75rem;padding:1.5rem;display:flex;flex-direction:column;gap:.75rem}
+  .card-header{display:flex;align-items:center;gap:.75rem}
+  .name{font-size:1.1rem;font-weight:600}
+  .badge{background:#2b4a8c;color:#90cdf4;font-size:.7rem;padding:.2rem .6rem;border-radius:999px;font-weight:600;text-transform:uppercase}
+  .desc{color:#a0aec0;font-size:.875rem;line-height:1.5}
+  .owner{font-size:.8rem;color:#718096}
+  .btns{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.25rem}
+  .btn{text-decoration:none;padding:.4rem .9rem;border-radius:.4rem;font-size:.8rem;font-weight:600;transition:opacity .15s}
+  .btn:hover{opacity:.8}
+  .btn.primary{background:#3182ce;color:#fff}
+  .btn:not(.primary):not(.extra){background:#2d3748;color:#e2e8f0}
+  .btn.extra{background:#22543d;color:#9ae6b4}
+  .no-url{color:#4a5568;font-size:.8rem;font-style:italic}
+  .empty{color:#4a5568;padding:2rem;text-align:center;font-size:1rem}
+  footer{text-align:center;padding:1.5rem;font-size:.75rem;color:#4a5568;border-top:1px solid #1a1f2e}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#9881; MASTER-MANAGER</h1>
+  <span class="ts">Updated: 2026-05-13T01:58:21Z</span>
+</header>
+<div class="grid">
+<p class="empty">No managers yet. Run <code>./create-manager.sh</code> to add one.</p>
+</div>
+<footer>Source: /home/kbun/Desktop/MASTER-MANAGER/managers.json &nbsp;|&nbsp; <a href="../README.md" style="color:#4a5568">README</a></footer>
+</body>
+</html>

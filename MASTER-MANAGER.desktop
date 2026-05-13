@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MASTER-MANAGER
+Comment=Open the MASTER-MANAGER dashboard
+Exec=xdg-open /home/kbun/Desktop/MASTER-MANAGER/dashboard/index.html
+Icon=/home/kbun/Desktop/MASTER-MANAGER/assets/master-manager.png
+Terminal=false
+Categories=Utility;

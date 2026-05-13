@@ -1,0 +1,31 @@
+# {{NAME}}
+
+{{DESCRIPTION}}
+
+Created: {{DATE}} | Owner: {{OWNER}} | Domain: Azure
+
+## Bootstrap an Azure Project
+
+```bash
+manager-setup/scripts/bootstrap-item.sh <project-name> --owner {{OWNER}}
+```
+
+Add `--create-rgs` to provision Azure resource groups:
+
+```bash
+manager-setup/scripts/bootstrap-item.sh <project-name> --owner {{OWNER}} --create-rgs
+```
+
+## Refresh Inventory
+
+```bash
+manager-setup/scripts/update-inventory.sh
+```
+
+<!-- {{NAME}}_INVENTORY_START -->
+## Inventory
+
+| Project | Path | Owner | Envs | Location | RGs Created | Last Bootstrap |
+|---|---|---|---|---|---|---|
+| None yet | - | - | - | - | - | - |
+<!-- {{NAME}}_INVENTORY_END -->

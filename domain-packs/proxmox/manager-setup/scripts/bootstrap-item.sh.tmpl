@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: %s <name> --vmid <id> [--type vm|ct] [--node <node>] [--memory <MB>] [--disk <G>]\n' "$0"
+}
+
+if [[ $# -lt 1 ]]; then usage >&2; exit 1; fi
+ITEM_NAME="$1"; shift
+
+VMID=""
+TYPE="vm"
+NODE="pve"
+MEMORY="2048"
+DISK="20"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --vmid)   VMID="${2:-}";   shift 2 ;;
+    --type)   TYPE="${2:-}";   shift 2 ;;
+    --node)   NODE="${2:-}";   shift 2 ;;
+    --memory) MEMORY="${2:-}"; shift 2 ;;
+    --disk)   DISK="${2:-}";   shift 2 ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; usage >&2; exit 1 ;;
+  esac
+done
+
+if [[ -z "$VMID" ]]; then
+  printf 'Error: --vmid is required\n' >&2; exit 1
+fi
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+setup_dir="$(cd "$script_dir/.." && pwd)"
+inventory_dir="$setup_dir/inventory"
+items_dir="$setup_dir/items"
+timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+mkdir -p "$inventory_dir" "$items_dir/$ITEM_NAME"
+
+if [[ -f "$setup_dir/templates/cloud-init.yaml" ]]; then
+  cp "$setup_dir/templates/cloud-init.yaml" "$items_dir/$ITEM_NAME/cloud-init.yaml"
+fi
+
+meta_file="$inventory_dir/$ITEM_NAME.meta"
+{
+  printf 'ITEM_NAME=%q\n' "$ITEM_NAME"
+  printf 'VMID=%q\n'      "$VMID"
+  printf 'TYPE=%q\n'      "$TYPE"
+  printf 'NODE=%q\n'      "$NODE"
+  printf 'MEMORY=%q\n'    "$MEMORY"
+  printf 'DISK=%q\n'      "$DISK"
+  printf 'STATUS=%q\n'    "pending"
+  printf 'CREATED_AT=%q\n' "$timestamp"
+} > "$meta_file"
+
+"$script_dir/update-inventory.sh"
+printf 'Item created: %s (vmid=%s, node=%s)\n' "$ITEM_NAME" "$VMID" "$NODE"

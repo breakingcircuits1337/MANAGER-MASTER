@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  printf 'Usage: %s <client-name> [--status active|prospect|inactive]\n' "$0" >&2; exit 1
+fi
+CLIENT_NAME="$1"; shift
+STATUS="active"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --status) STATUS="${2:-}"; shift 2 ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; exit 1 ;;
+  esac
+done
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+setup_dir="$(cd "$script_dir/.." && pwd)"
+inventory_dir="$setup_dir/inventory"
+items_dir="$setup_dir/items"
+timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+client_dir="$items_dir/$CLIENT_NAME"
+
+mkdir -p "$client_dir" "$inventory_dir"
+
+for tmpl in invoice contract; do
+  src="$setup_dir/templates/${tmpl}.md"
+  dst="$client_dir/${tmpl}.md"
+  if [[ -f "$src" && ! -f "$dst" ]]; then
+    sed "s|{{CLIENT_NAME}}|$CLIENT_NAME|g" "$src" > "$dst"
+    printf 'Created: %s\n' "$dst"
+  fi
+done
+
+meta_file="$inventory_dir/$CLIENT_NAME.meta"
+{
+  printf 'ITEM_NAME=%q\n'  "$CLIENT_NAME"
+  printf 'ITEM_DIR=%q\n'   "$client_dir"
+  printf 'STATUS=%q\n'     "$STATUS"
+  printf 'CREATED_AT=%q\n' "$timestamp"
+} > "$meta_file"
+
+"$script_dir/update-inventory.sh"
+printf 'Client created: %s\n' "$client_dir"

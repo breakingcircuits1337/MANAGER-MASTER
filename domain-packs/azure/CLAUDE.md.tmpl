@@ -1,0 +1,37 @@
+# {{NAME}} Agent Instructions
+
+This workspace is a control plane for Azure-backed projects.
+
+## Default Project Setup Flow
+
+When asked to set up a new Azure project:
+
+1. Load the `azure` and `new-project` skills before acting.
+2. Load the `terraform` skill if infrastructure as code is needed.
+3. Ask only for missing blocking information.
+4. Run `manager-setup/scripts/bootstrap-item.sh <project-name> --owner {{OWNER}}`.
+5. Continue implementation until done.
+6. Run `manager-setup/scripts/update-inventory.sh` before finishing.
+7. Report the project path, what was created, and any unresolved questions.
+
+## Defaults
+
+- Owner: {{OWNER}}
+- Azure region: eastus
+- Environments: dev prod
+- Resource group naming: <project>-<env>-rg
+- Required tags: project, env, owner, managed_by
+
+## Blocking Questions
+
+Ask before continuing when missing:
+
+- Project name
+- Application stack (Python, Node, React, FastAPI, container)
+- Whether to create real Azure resources (may incur cost)
+- Secrets, API keys, credentials, or production settings
+- Destructive operations
+
+## Inventory Requirement
+
+The root `README.md` inventory is the source of truth. Always update it after any project change.

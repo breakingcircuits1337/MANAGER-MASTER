@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  printf 'Usage: %s <item-name>\n' "$0" >&2
+  exit 1
+fi
+
+ITEM_NAME="$1"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+setup_dir="$(cd "$script_dir/.." && pwd)"
+item_dir="$setup_dir/items/$ITEM_NAME"
+inventory_dir="$setup_dir/inventory"
+timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+mkdir -p "$item_dir" "$inventory_dir"
+
+meta_file="$inventory_dir/$ITEM_NAME.meta"
+{
+  printf 'ITEM_NAME=%q\n' "$ITEM_NAME"
+  printf 'ITEM_DIR=%q\n'  "$item_dir"
+  printf 'OWNER=%q\n'     "{{OWNER}}"
+  printf 'CREATED_AT=%q\n' "$timestamp"
+} > "$meta_file"
+
+"$script_dir/update-inventory.sh"
+printf 'Item created: %s\n' "$item_dir"

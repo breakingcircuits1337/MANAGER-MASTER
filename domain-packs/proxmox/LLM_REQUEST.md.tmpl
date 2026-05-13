@@ -1,0 +1,20 @@
+# LLM VM Request — {{NAME}}
+
+## Minimal
+
+```
+Create a Proxmox VM named <name> with ID <vmid> on node <node>.
+Load the proxmox skill. Run bootstrap-item.sh, update inventory, report what was created.
+```
+
+## Detailed
+
+```
+Create a Proxmox <vm|ct> named <name>.
+VM ID: <vmid>
+Node: <node>
+Memory: <MB>
+Disk: <G>
+OS: <template>
+Load the proxmox skill. Ask only blocking questions. Build until complete. Update inventory.
+```

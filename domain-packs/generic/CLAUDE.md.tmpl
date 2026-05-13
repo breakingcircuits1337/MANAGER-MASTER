@@ -1,0 +1,30 @@
+# {{NAME}} Agent Instructions
+
+This workspace manages {{DOMAIN}} items.
+
+## Default Item Setup Flow
+
+When asked to create, add, or set up a new item:
+
+1. Ask only for missing blocking information.
+2. Run `manager-setup/scripts/bootstrap-item.sh <item-name>` to register the item.
+3. Continue implementation until done.
+4. Run `manager-setup/scripts/update-inventory.sh` before finishing.
+5. Report the item path and what was created.
+
+## Defaults
+
+- Owner: {{OWNER}}
+- Items folder: `manager-setup/items/`
+- Inventory folder: `manager-setup/inventory/`
+
+## Blocking Questions
+
+Ask before continuing when missing:
+
+- Item name
+- Any configuration that cannot be safely defaulted
+
+## Inventory Requirement
+
+The root `README.md` inventory is the source of truth. Always update it after any item change.

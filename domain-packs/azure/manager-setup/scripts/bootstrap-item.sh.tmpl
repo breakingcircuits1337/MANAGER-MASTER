@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: %s <project-name> [--owner <name>] [--envs "dev prod"] [--location <region>] [--subscription <id>] [--create-rgs] [--force]\n' "$0"
+}
+
+if [[ $# -lt 1 ]]; then usage >&2; exit 1; fi
+PROJECT_NAME="$1"; shift
+if [[ ! "$PROJECT_NAME" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; then
+  printf 'Project name must be lowercase letters, numbers, hyphens.\n' >&2; exit 1
+fi
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+setup_dir="$(cd "$script_dir/.." && pwd)"
+root_dir="$(cd "$setup_dir/../.." && pwd)"
+template_dir="$setup_dir/templates/terraform"
+inventory_dir="$setup_dir/inventory"
+
+OWNER="{{OWNER}}"
+ENVS="dev prod"
+LOCATION="eastus"
+SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-}"
+CREATE_RGS=false
+FORCE=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --owner)        OWNER="${2:-}";           shift 2 ;;
+    --envs)         ENVS="${2:-}";            shift 2 ;;
+    --location)     LOCATION="${2:-}";        shift 2 ;;
+    --subscription) SUBSCRIPTION_ID="${2:-}"; shift 2 ;;
+    --create-rgs)   CREATE_RGS=true;          shift   ;;
+    --force)        FORCE=true;               shift   ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; usage >&2; exit 1 ;;
+  esac
+done
+
+project_dir="$root_dir/projects/$PROJECT_NAME"
+infra_dir="$project_dir/infra"
+mkdir -p "$project_dir" "$infra_dir" "$inventory_dir"
+timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+for tf in providers.tf variables.tf main.tf; do
+  target="$infra_dir/$tf"
+  if [[ -f "$target" && "$FORCE" != true ]]; then
+    printf 'Keeping: %s\n' "$target"
+  else
+    cp "$template_dir/$tf" "$target"
+    printf 'Copied: %s\n' "$target"
+  fi
+done
+
+first_env="${ENVS%% *}"
+tfvars="$infra_dir/terraform.tfvars"
+if [[ ! -f "$tfvars" || "$FORCE" == true ]]; then
+  cat > "$tfvars" << TFEOF
+project_name  = "$PROJECT_NAME"
+environment   = "$first_env"
+location      = "$LOCATION"
+owner         = "$OWNER"
+TFEOF
+  printf 'Wrote: %s\n' "$tfvars"
+fi
+
+proj_readme="$project_dir/README.md"
+if [[ ! -f "$proj_readme" || "$FORCE" == true ]]; then
+  cat > "$proj_readme" << RDEOF
+# $PROJECT_NAME
+
+Azure project scaffold managed by {{NAME}}.
+
+- Environments: $ENVS
+- Location: $LOCATION
+- Owner: $OWNER
+
+## Terraform
+
+\`\`\`bash
+cd "$infra_dir"
+terraform init && terraform plan
+\`\`\`
+RDEOF
+  printf 'Wrote: %s\n' "$proj_readme"
+fi
+
+RGS_CREATED=false
+if [[ "$CREATE_RGS" == true ]]; then
+  for env in $ENVS; do
+    rg_name="${PROJECT_NAME}-${env}-rg"
+    az group create --name "$rg_name" --location "$LOCATION" \
+      --tags project="$PROJECT_NAME" env="$env" owner="$OWNER" managed_by="{{NAME}}"
+    printf 'Created resource group: %s\n' "$rg_name"
+  done
+  RGS_CREATED=true
+fi
+
+meta_file="$inventory_dir/$PROJECT_NAME.meta"
+{
+  printf 'PROJECT_NAME=%q\n' "$PROJECT_NAME"
+  printf 'PROJECT_DIR=%q\n'  "$project_dir"
+  printf 'OWNER=%q\n'        "$OWNER"
+  printf 'ENVS=%q\n'         "$ENVS"
+  printf 'LOCATION=%q\n'     "$LOCATION"
+  printf 'RGS_CREATED=%q\n'  "$RGS_CREATED"
+  printf 'UPDATED_AT=%q\n'   "$timestamp"
+} > "$meta_file"
+
+"$script_dir/update-inventory.sh"
+printf '\nProject bootstrap complete: %s\n' "$project_dir"

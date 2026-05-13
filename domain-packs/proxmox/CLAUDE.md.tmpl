@@ -1,0 +1,35 @@
+# {{NAME}} Agent Instructions
+
+This workspace manages Proxmox VMs and containers.
+
+## Default VM/CT Setup Flow
+
+When asked to create a VM or container:
+
+1. Load the `proxmox` skill before acting.
+2. Ask only for missing blocking information (VM ID, node, memory, disk).
+3. Run `manager-setup/scripts/bootstrap-item.sh <vm-name> --vmid <id> --type <vm|ct>`.
+4. Continue configuration until done.
+5. Run `manager-setup/scripts/update-inventory.sh` before finishing.
+6. Report the VM ID, node, and what was configured.
+
+## Defaults
+
+- Owner: {{OWNER}}
+- Node: pve
+- Type: vm
+- Memory: 2048 MB
+- Disk: 20G
+- OS: ubuntu-22.04
+
+## Blocking Questions
+
+Ask before continuing when missing:
+
+- VM/CT name
+- VM ID (must be unique in Proxmox)
+- Proxmox node hostname or IP
+
+## Inventory Requirement
+
+The root `README.md` inventory is the source of truth. Always update it after any VM/CT change.

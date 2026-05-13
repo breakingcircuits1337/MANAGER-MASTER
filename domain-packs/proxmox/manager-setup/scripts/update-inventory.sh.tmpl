@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+setup_dir="$(cd "$script_dir/.." && pwd)"
+root_dir="$(cd "$setup_dir/../.." && pwd)"
+readme="$root_dir/README.md"
+inventory_dir="$setup_dir/inventory"
+updated_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+sentinel_start="<!-- {{NAME}}_INVENTORY_START -->"
+sentinel_end="<!-- {{NAME}}_INVENTORY_END -->"
+
+section_file="$(mktemp)"
+{
+  printf '%s\n' "$sentinel_start"
+  printf '## Inventory\n\nLast updated: `%s`\n\n' "$updated_at"
+  printf '| Name | VM ID | Type | Node | Memory | Status | Created |\n'
+  printf '|---|---|---|---|---|---|---|\n'
+
+  shopt -s nullglob
+  meta_files=("$inventory_dir"/*.meta)
+  if [[ ${#meta_files[@]} -eq 0 ]]; then
+    printf '| None yet | - | - | - | - | - | - |\n'
+  else
+    for meta in "${meta_files[@]}"; do
+      ITEM_NAME=""; VMID=""; TYPE=""; NODE=""; MEMORY=""; STATUS=""; CREATED_AT=""
+      # shellcheck disable=SC1090
+      source "$meta"
+      printf '| `%s` | `%s` | `%s` | `%s` | `%s MB` | `%s` | `%s` |\n' \
+        "$ITEM_NAME" "$VMID" "$TYPE" "$NODE" "$MEMORY" "$STATUS" "$CREATED_AT"
+    done
+  fi
+  printf '%s\n' "$sentinel_end"
+} > "$section_file"
+
+if grep -q "$sentinel_start" "$readme" 2>/dev/null; then
+  tmp="$(mktemp)"
+  awk -v sf="$section_file" -v ss="$sentinel_start" -v se="$sentinel_end" '
+    $0 ~ ss { while ((getline line < sf) > 0) print line; in_s=1; next }
+    $0 ~ se { in_s=0; next }
+    !in_s   { print }
+  ' "$readme" > "$tmp"
+  mv "$tmp" "$readme"
+else
+  printf '\n' >> "$readme"
+  cat "$section_file" >> "$readme"
+fi
+rm -f "$section_file"
+printf 'Updated inventory: %s\n' "$readme"

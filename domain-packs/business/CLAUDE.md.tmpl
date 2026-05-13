@@ -1,0 +1,32 @@
+# {{NAME}} Agent Instructions
+
+This workspace manages business clients, invoices, and contracts.
+
+## Default Client Setup Flow
+
+When asked to add a client or create an invoice/contract:
+
+1. Ask only for missing blocking information (client name, rate, service description).
+2. Run `manager-setup/scripts/bootstrap-item.sh <client-name>` to create the client folder.
+3. Populate invoice and contract templates with provided details.
+4. Run `manager-setup/scripts/update-inventory.sh` before finishing.
+5. Report the client folder path and what was created.
+
+## Defaults
+
+- Owner: {{OWNER}}
+- Currency: USD
+- Payment terms: Net 30
+- Status: active
+
+## Blocking Questions
+
+Ask before continuing when missing:
+
+- Client name
+- Service description
+- Billing rate or project amount
+
+## Inventory Requirement
+
+The root `README.md` inventory is the source of truth. Always update it after any client change.

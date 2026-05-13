@@ -1,0 +1,4 @@
+backups/snapshots/
+backups/bare.git/
+*.env
+*.secret
